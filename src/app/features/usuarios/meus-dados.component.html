@@ -1,0 +1,97 @@
+<div class="meus-dados-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Meus Dados</h1>
+      </mat-card-title>
+      <mat-card-subtitle>
+        Gerencie suas informações pessoais
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="carregando()" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Carregando seus dados...</p>
+      </div>
+
+      <form *ngIf="!carregando()" [formGroup]="usuarioForm" (ngSubmit)="salvarDados()" class="dados-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nome completo</mat-label>
+            <input matInput formControlName="nome" placeholder="Seu nome completo">
+            <mat-error *ngIf="nome?.hasError('required')">
+              Nome é obrigatório
+            </mat-error>
+            <mat-error *ngIf="nome?.hasError('minlength')">
+              Nome deve ter pelo menos 3 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Telefone</mat-label>
+            <input matInput formControlName="telefone" placeholder="(11) 99999-9999">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Avatar URL</mat-label>
+            <input matInput formControlName="avatar" placeholder="https://exemplo.com/avatar.jpg">
+            <mat-hint>URL da sua foto de perfil</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="!usuarioForm.valid || usuarioForm.pristine || salvando()">
+            
+            <span *ngIf="!salvando()">Salvar Alterações</span>
+            <div *ngIf="salvando()" class="loading-button">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Salvando...</span>
+            </div>
+          </button>
+
+          <button 
+            mat-button 
+            type="button"
+            (click)="carregarMeusDados()"
+            [disabled]="salvando()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="!carregando()" class="user-info">
+        <h3>Informações da Conta</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>E-mail:</strong>
+            <span>{{ authService.usuarioAtual()?.email }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Perfil:</strong>
+            <span class="perfil-badge">{{ authService.usuarioAtual()?.perfilNome }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Data de Criação:</strong>
+            <span>{{ authService.usuarioAtual()?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Status:</strong>
+            <span [class.ativo]="authService.usuarioAtual()?.ativo" 
+                  [class.inativo]="!authService.usuarioAtual()?.ativo">
+              {{ authService.usuarioAtual()?.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

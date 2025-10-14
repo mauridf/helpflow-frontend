@@ -17,10 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/usuarios/usuarios.component').then(m => m.UsuariosComponent),
     canActivate: [authGuard]
   },
-  // { 
-  //   path: 'meus-dados', 
-  //   loadComponent: () => import('./features/usuarios/meus-dados.component').then(m => m.MeusDadosComponent),
-  //   canActivate: [authGuard]
-  // },
+  { 
+    path: 'meus-dados', 
+    loadComponent: () => import('./features/usuarios/meus-dados.component').then(m => m.MeusDadosComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/dashboard' }
 ];

@@ -1,0 +1,108 @@
+.usuarios-container {
+  padding: 20px;
+}
+
+.actions-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.table-container {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.user-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+.inativo-badge {
+  background: #ffebee;
+  color: #c62828;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-ativo {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.status-inativo {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .usuarios-container {
+    padding: 10px;
+  }
+
+  .actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-container {
+    font-size: 14px;
+  }
+
+  // Esconder colunas menos importantes em mobile
+  .created-at-column {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  // Ajustar tabela para mobile
+  .mat-table {
+    .mat-header-row,
+    .mat-row {
+      padding: 8px 4px;
+    }
+  }
+}
