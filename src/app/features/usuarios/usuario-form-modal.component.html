@@ -1,0 +1,129 @@
+<div class="usuario-form-modal">
+  <!-- Header -->
+  <div mat-dialog-title class="modal-header">
+    <h2>{{ tituloModal }}</h2>
+    <button mat-icon-button (click)="fechar()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div mat-dialog-content class="modal-content">
+    <div *ngIf="carregando()" class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Carregando...</p>
+    </div>
+
+    <form *ngIf="!carregando()" [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" class="usuario-form">
+      
+      <!-- Nome -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nome completo</mat-label>
+        <input matInput formControlName="nome" placeholder="Digite o nome completo">
+        <mat-icon matSuffix>person</mat-icon>
+        
+        <mat-error *ngIf="nome?.hasError('required')">
+          Nome é obrigatório
+        </mat-error>
+        <mat-error *ngIf="nome?.hasError('minlength')">
+          Nome deve ter pelo menos 3 caracteres
+        </mat-error>
+        <mat-error *ngIf="nome?.hasError('maxlength')">
+          Nome deve ter no máximo 100 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>E-mail</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="exemplo@email.com">
+        <mat-icon matSuffix>email</mat-icon>
+        
+        <mat-error *ngIf="email?.hasError('required')">
+          E-mail é obrigatório
+        </mat-error>
+        <mat-error *ngIf="email?.hasError('email')">
+          E-mail inválido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Senha -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Senha</mat-label>
+        <input matInput formControlName="senha" [type]="data.modoEdicao ? 'text' : 'password'" 
+               [placeholder]="data.modoEdicao ? 'Deixe em branco para manter atual' : 'Digite a senha'">
+        <mat-icon matSuffix>lock</mat-icon>
+        
+        <mat-hint *ngIf="data.modoEdicao">
+          Deixe em branco para manter a senha atual
+        </mat-hint>
+        <mat-hint *ngIf="!data.modoEdicao">
+          Mínimo 6 caracteres
+        </mat-hint>
+        
+        <mat-error *ngIf="senha?.hasError('required') && !data.modoEdicao">
+          Senha é obrigatória
+        </mat-error>
+        <mat-error *ngIf="senha?.hasError('minlength')">
+          Senha deve ter pelo menos 6 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Telefone -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Telefone</mat-label>
+        <input matInput formControlName="telefone" placeholder="(11) 99999-9999"
+               (input)="formatarTelefone($event)" maxlength="15">
+        <mat-icon matSuffix>phone</mat-icon>
+        
+        <mat-error *ngIf="telefone?.hasError('pattern')">
+          Formato inválido. Use (11) 99999-9999
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Perfil -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Perfil</mat-label>
+        <mat-select formControlName="perfilId">
+          <mat-option *ngFor="let perfil of perfis()" [value]="perfil.id">
+            {{ perfil.nome }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>badge</mat-icon>
+        
+        <mat-error *ngIf="perfilId?.hasError('required')">
+          Perfil é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Avatar -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Avatar URL</mat-label>
+        <input matInput formControlName="avatar" placeholder="https://exemplo.com/avatar.jpg">
+        <mat-icon matSuffix>image</mat-icon>
+        <mat-hint>URL opcional para foto de perfil</mat-hint>
+      </mat-form-field>
+
+    </form>
+  </div>
+
+  <!-- Actions -->
+  <div mat-dialog-actions class="modal-actions">
+    <button mat-button (click)="fechar()" [disabled]="salvando()">
+      Cancelar
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="!usuarioForm.valid || salvando()">
+      
+      <span *ngIf="!salvando()">{{ textoBotaoSalvar }}</span>
+      <div *ngIf="salvando()" class="loading-button">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Salvando...</span>
+      </div>
+    </button>
+  </div>
+</div>

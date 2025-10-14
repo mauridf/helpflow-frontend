@@ -16,6 +16,7 @@
         <button 
           mat-raised-button 
           color="primary"
+          (click)="abrirModalCriarUsuario()"
           *ngIf="podeCriarUsuario()">
           <mat-icon>add</mat-icon>
           Novo Usuário

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -9,10 +9,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '../../core/services/auth.service';
 import { UsuariosService } from '../../core/services/usuarios.service';
 import { Usuario } from '../../core/models/usuario.model';
+import { UsuarioFormModalComponent, UsuarioFormModalData } from './usuario-form-modal.component';
 
 @Component({
   selector: 'app-usuarios',
@@ -31,6 +33,8 @@ import { Usuario } from '../../core/models/usuario.model';
   styleUrls: ['./usuarios.component.scss']
 })
 export class UsuariosComponent implements OnInit {
+  private dialog = inject(MatDialog);
+  
   carregando = signal(true);
   usuarios = signal<Usuario[]>([]);
 
@@ -51,7 +55,6 @@ export class UsuariosComponent implements OnInit {
     this.carregando.set(true);
 
     if (this.authService.isGestor()) {
-      // Gestor vê todos os usuários
       this.usuariosService.listarTodos().subscribe({
         next: (usuarios) => {
           this.usuarios.set(usuarios);
@@ -64,7 +67,6 @@ export class UsuariosComponent implements OnInit {
         }
       });
     } else if (this.authService.isAtendente()) {
-      // Atendente vê apenas clientes
       this.usuariosService.listarClientes().subscribe({
         next: (clientes) => {
           this.usuarios.set(clientes);
@@ -79,16 +81,53 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  abrirModalCriarUsuario(): void {
+    const dialogRef = this.dialog.open(UsuarioFormModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: {
+        modoEdicao: false
+      } as UsuarioFormModalData
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Usuário criado com sucesso, recarregar lista
+        this.carregarUsuarios();
+        this.snackBar.open('Usuário criado com sucesso!', 'Fechar', { duration: 3000 });
+      }
+    });
+  }
+
+  abrirModalEditarUsuario(usuario: Usuario): void {
+    const dialogRef = this.dialog.open(UsuarioFormModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: {
+        usuario: usuario,
+        modoEdicao: true
+      } as UsuarioFormModalData
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Usuário atualizado com sucesso, recarregar lista
+        this.carregarUsuarios();
+        this.snackBar.open('Usuário atualizado com sucesso!', 'Fechar', { duration: 3000 });
+      }
+    });
+  }
+
   verDetalhes(usuario: Usuario): void {
-    // Navegar para detalhes ou abrir modal
-    console.log('Ver detalhes:', usuario);
+    // Abrir modal de detalhes ou navegar para página de detalhes
     this.snackBar.open(`Visualizando ${usuario.nome}`, 'Fechar', { duration: 3000 });
+    
+    // TODO: Implementar modal de detalhes completo
+    console.log('Detalhes do usuário:', usuario);
   }
 
   editarUsuario(usuario: Usuario): void {
-    // Navegar para edição ou abrir modal
-    console.log('Editar usuário:', usuario);
-    this.snackBar.open(`Editando ${usuario.nome}`, 'Fechar', { duration: 3000 });
+    this.abrirModalEditarUsuario(usuario);
   }
 
   buscarPorEmail(): void {
@@ -97,6 +136,7 @@ export class UsuariosComponent implements OnInit {
       this.usuariosService.buscarPorEmail(email).subscribe({
         next: (usuario) => {
           this.snackBar.open(`Usuário encontrado: ${usuario.nome}`, 'Fechar', { duration: 3000 });
+          // TODO: Mostrar usuário em um modal de detalhes
         },
         error: (error) => {
           console.error('Erro ao buscar usuário:', error);
