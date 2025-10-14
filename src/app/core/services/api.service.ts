@@ -19,6 +19,10 @@ export class ApiService {
     return this.http.post<T>(`${this.baseUrl}/${endpoint}`, data);
   }
 
+  postWithParams<T>(endpoint: string, data: any, params: any) {
+    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, data, { params });
+  }
+
   put<T>(endpoint: string, data: any) {
     return this.http.put<T>(`${this.baseUrl}/${endpoint}`, data);
   }
