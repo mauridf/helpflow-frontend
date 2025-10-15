@@ -1,0 +1,167 @@
+<div class="usuario-detalhes-modal">
+  <!-- Header -->
+  <div mat-dialog-title class="modal-header">
+    <h2>Detalhes do Usuário</h2>
+    <button mat-icon-button (click)="fechar()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div mat-dialog-content class="modal-content">
+    <div *ngIf="carregando()" class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Carregando detalhes...</p>
+    </div>
+
+    <div *ngIf="!carregando() && usuario()" class="detalhes-container">
+      
+      <!-- Header do Usuário -->
+      <div class="usuario-header">
+        <div class="avatar-section">
+          <div *ngIf="usuario()?.avatar" class="avatar-img-container">
+            <img [src]="usuario()?.avatar" [alt]="usuario()?.nome" class="avatar-img">
+          </div>
+          <div *ngIf="!usuario()?.avatar" class="avatar-iniciais">
+            {{ getIniciais(usuario()!.nome) }}
+          </div>
+        </div>
+        
+        <div class="usuario-info-basic">
+          <h3 class="usuario-nome">{{ usuario()?.nome }}</h3>
+          <p class="usuario-email">{{ usuario()?.email }}</p>
+          <div class="status-chips">
+            <mat-chip [color]="getPerfilColor(usuario()!.perfilNome)" selected>
+              {{ usuario()?.perfilNome }}
+            </mat-chip>
+            <mat-chip [color]="getStatusColor(usuario()!.ativo)" selected>
+              {{ getStatusText(usuario()!.ativo) }}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Informações Detalhadas -->
+      <div class="detalhes-grid">
+        
+        <!-- Informações de Contato -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <mat-icon>contact_phone</mat-icon>
+            Informações de Contato
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <strong>Telefone:</strong>
+              <span>{{ usuario()?.telefone || 'Não informado' }}</span>
+            </div>
+            <div class="info-item">
+              <strong>E-mail:</strong>
+              <span>{{ usuario()?.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações da Conta -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <mat-icon>badge</mat-icon>
+            Informações da Conta
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <strong>ID do Usuário:</strong>
+              <span class="monospace">{{ usuario()?.id }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Perfil:</strong>
+              <span>{{ usuario()?.perfilNome }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Status:</strong>
+              <span [class.status-ativo]="usuario()!.ativo" 
+                    [class.status-inativo]="!usuario()!.ativo">
+                {{ getStatusText(usuario()!.ativo) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datas -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <mat-icon>event</mat-icon>
+            Datas
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <strong>Criado em:</strong>
+              <span>{{ formatarData(usuario()!.createdAt) }}</span>
+            </div>
+            <div class="info-item" *ngIf="usuario()?.departamento as dep">
+                <strong>Departamento:</strong>
+                <span>{{ dep.nome }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar URL -->
+        <div class="info-section" *ngIf="usuario()?.avatar">
+          <h4 class="section-title">
+            <mat-icon>image</mat-icon>
+            Avatar
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <strong>URL do Avatar:</strong>
+              <a [href]="usuario()?.avatar" target="_blank" class="avatar-url">
+                {{ usuario()?.avatar }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Estatísticas (pode ser expandido no futuro) -->
+      <div class="estatisticas-section" *ngIf="usuario()?.perfilNome === 'Cliente'">
+        <h4 class="section-title">
+          <mat-icon>analytics</mat-icon>
+          Estatísticas
+        </h4>
+        <div class="estatisticas-grid">
+          <div class="estatistica-item">
+            <div class="estatistica-valor">0</div>
+            <div class="estatistica-label">Tickets Abertos</div>
+          </div>
+          <div class="estatistica-item">
+            <div class="estatistica-valor">0</div>
+            <div class="estatistica-label">Tickets Resolvidos</div>
+          </div>
+          <div class="estatistica-item">
+            <div class="estatistica-valor">-</div>
+            <div class="estatistica-label">Avaliação Média</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div mat-dialog-actions class="modal-actions">
+    <button mat-button (click)="fechar()">
+      Fechar
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="fechar()">
+      <mat-icon>check</mat-icon>
+      OK
+    </button>
+  </div>
+</div>

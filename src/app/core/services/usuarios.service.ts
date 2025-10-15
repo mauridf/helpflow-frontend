@@ -38,4 +38,16 @@ export class UsuariosService {
   listarClientes(): Observable<Usuario[]> {
     return this.apiService.get<Usuario[]>('usuarios/clientes');
   }
+
+  inativarUsuario(id: string): Observable<any> {
+    return this.apiService.put(`usuarios/${id}/inativar`, {});
+  }
+
+  ativarUsuario(id: string): Observable<any> {
+    return this.apiService.put(`usuarios/${id}/ativar`, {});
+  }
+
+  alterarStatusUsuario(id: string, ativo: boolean): Observable<Usuario> {
+    return this.apiService.patch<Usuario>(`usuarios/${id}/status`, { ativo });
+  }
 }
