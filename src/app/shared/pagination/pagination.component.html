@@ -1,0 +1,86 @@
+<div class="pagination-container">
+  <!-- Informações de itens -->
+  <div class="pagination-info">
+    Mostrando {{ inicioItem() }} - {{ fimItem() }} de {{ paginacao.totalElements }} itens
+  </div>
+
+  <!-- Controles de paginação -->
+  <div class="pagination-controls">
+    
+    <!-- Tamanho da página -->
+    <mat-form-field *ngIf="showPageSizeOptions" class="page-size-select">
+      <mat-label>Itens por página</mat-label>
+      <mat-select [value]="paginacao.size" (selectionChange)="alterarTamanhoPagina($event.value)">
+        <mat-option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Navegação -->
+    <div class="navigation-buttons">
+      
+      <!-- Primeira página -->
+      <button 
+        *ngIf="showFirstLastButtons"
+        mat-icon-button 
+        (click)="irParaPrimeiraPagina()"
+        [disabled]="paginacao.first"
+        matTooltip="Primeira página">
+        <mat-icon>first_page</mat-icon>
+      </button>
+
+      <!-- Página anterior -->
+      <button 
+        mat-icon-button 
+        (click)="irParaPaginaAnterior()"
+        [disabled]="paginacao.first"
+        matTooltip="Página anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <!-- Páginas numeradas -->
+      <div class="page-numbers">
+        <button 
+          *ngFor="let pagina of getPaginasParaExibir()"
+          mat-button 
+          [class.active]="isPaginaAtual(pagina)"
+          (click)="irParaPagina(pagina)"
+          class="page-button">
+          {{ pagina }}
+        </button>
+        
+        <!-- Indicador de páginas omitidas -->
+        <span *ngIf="getPaginasParaExibir().length < totalPaginas() && paginaAtual() < totalPaginas() - 2" 
+              class="page-ellipsis">
+          ...
+        </span>
+      </div>
+
+      <!-- Próxima página -->
+      <button 
+        mat-icon-button 
+        (click)="irParaProximaPagina()"
+        [disabled]="paginacao.last"
+        matTooltip="Próxima página">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <!-- Última página -->
+      <button 
+        *ngIf="showFirstLastButtons"
+        mat-icon-button 
+        (click)="irParaUltimaPagina()"
+        [disabled]="paginacao.last"
+        matTooltip="Última página">
+        <mat-icon>last_page</mat-icon>
+      </button>
+
+    </div>
+
+    <!-- Informação de página atual -->
+    <div class="page-info">
+      Página {{ paginaAtual() }} de {{ totalPaginas() }}
+    </div>
+  </div>
+</div>

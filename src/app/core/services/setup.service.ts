@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
@@ -22,14 +22,34 @@ export interface SetupData {
   providedIn: 'root'
 })
 export class SetupService {
+  private dadosCache = signal<SetupData | null>(null);
 
   constructor(private apiService: ApiService) { }
 
   obterDadosIniciais(): Observable<SetupData> {
-    return this.apiService.get<SetupData>('setup/dados-iniciais');
+    // Retornar cache se disponível
+    const cache = this.dadosCache();
+    if (cache) {
+      return new Observable(observer => {
+        observer.next(cache);
+        observer.complete();
+      });
+    }
+
+    // Buscar da API e cachear
+    return this.apiService.get<SetupData>('setup/dados-iniciais').pipe(
+      tap(dados => this.dadosCache.set(dados))
+    );
   }
 
   listarPerfis(): Observable<Perfil[]> {
-    return this.apiService.get<Perfil[]>('setup/perfis');
+    return this.obterDadosIniciais().pipe(
+      map(dados => dados.perfis)
+    );
+  }
+
+  // Limpar cache (útil para testes)
+  limparCache(): void {
+    this.dadosCache.set(null);
   }
 }

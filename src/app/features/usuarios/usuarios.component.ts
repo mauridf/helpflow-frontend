@@ -19,6 +19,8 @@ import { UsuarioFormModalComponent, UsuarioFormModalData } from './usuario-form-
 import { UsuarioDetalhesModalComponent } from './usuario-detalhes-modal.component';
 import { ConfirmacaoModalComponent, ConfirmacaoModalData } from '../../shared/confirmacao-modal/confirmacao-modal.component';
 import { UsuariosFiltrosComponent, FiltrosUsuarios } from './usuarios-filtros.component';
+import { PaginatedResponse, PageRequest } from '../../core/models/pagination.model';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-usuarios',
@@ -33,7 +35,8 @@ import { UsuariosFiltrosComponent, FiltrosUsuarios } from './usuarios-filtros.co
     MatMenuModule,
     MatChipsModule,
     MatDividerModule,
-    UsuariosFiltrosComponent
+    UsuariosFiltrosComponent,
+    PaginationComponent
   ],
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.scss']
@@ -45,7 +48,14 @@ export class UsuariosComponent implements OnInit {
   usuarios = signal<Usuario[]>([]);
   alterandoStatus = signal<string | null>(null);
 
-  colunasExibidas = ['nome', 'email', 'perfilNome', 'ativo', 'createdAt', 'acoes'];
+  colunasExibidas = [
+    { key: 'nome', label: 'Nome', ordenavel: true },
+    { key: 'email', label: 'E-mail', ordenavel: true },
+    { key: 'perfilNome', label: 'Perfil', ordenavel: true },
+    { key: 'ativo', label: 'Status', ordenavel: false },
+    { key: 'createdAt', label: 'Criado em', ordenavel: true },
+    { key: 'acoes', label: 'Ações', ordenavel: false }
+  ];
 
   // Adicionar signals
   usuariosFiltrados = signal<Usuario[]>([]);
@@ -53,6 +63,29 @@ export class UsuariosComponent implements OnInit {
     busca: '',
     perfilId: '',
     status: ''
+  });
+
+  paginacao = signal<PaginatedResponse<Usuario>>({
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    size: 10,
+    number: 0,
+    first: true,
+    last: true,
+    empty: true
+  });
+
+  ordenacao = signal<{ campo: string; direcao: 'asc' | 'desc' }>({
+    campo: 'nome',
+    direcao: 'asc'
+  });
+
+  pageRequest = signal<PageRequest>({
+    page: 0,
+    size: 10,
+    sort: 'nome',
+    direction: 'asc'
   });
 
   constructor(
@@ -69,11 +102,12 @@ export class UsuariosComponent implements OnInit {
   carregarUsuarios(): void {
     this.carregando.set(true);
 
+    const request = this.pageRequest();
+
     if (this.authService.isGestor()) {
-      this.usuariosService.listarTodos().subscribe({
-        next: (usuarios) => {
-          this.usuarios.set(usuarios);
-          this.aplicarFiltros();
+      this.usuariosService.listarTodosPaginado(request).subscribe({
+        next: (paginacao) => {
+          this.paginacao.set(paginacao);
           this.carregando.set(false);
         },
         error: (error) => {
@@ -83,10 +117,9 @@ export class UsuariosComponent implements OnInit {
         }
       });
     } else if (this.authService.isAtendente()) {
-      this.usuariosService.listarClientes().subscribe({
-        next: (clientes) => {
-          this.usuarios.set(clientes);
-          this.aplicarFiltros();
+      this.usuariosService.listarClientesPaginado(request).subscribe({
+        next: (paginacao) => {
+          this.paginacao.set(paginacao);
           this.carregando.set(false);
         },
         error: (error) => {
@@ -98,9 +131,57 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
+  ordenarTabela(campo: string): void {
+    const ordenacaoAtual = this.ordenacao();
+    
+    let novaDirecao: 'asc' | 'desc' = 'asc';
+    if (ordenacaoAtual.campo === campo) {
+      novaDirecao = ordenacaoAtual.direcao === 'asc' ? 'desc' : 'asc';
+    }
+    
+    this.ordenacao.set({ campo, direcao: novaDirecao });
+    
+    // Atualizar pageRequest com nova ordenação
+    const request = {
+      ...this.pageRequest(),
+      sort: campo,
+      direction: novaDirecao,
+      page: 0 // Voltar para primeira página ao ordenar
+    };
+    
+    this.pageRequest.set(request);
+    this.carregarUsuarios();
+  }
+
   onFiltrosAlterados(filtros: FiltrosUsuarios): void {
     this.filtros.set(filtros);
     this.aplicarFiltros();
+  }
+
+  isColunaOrdenada(campo: string): boolean {
+    return this.ordenacao().campo === campo;
+  }
+
+  getOrdenacaoIcon(campo: string): string {
+    if (!this.isColunaOrdenada(campo)) return 'unfold_more';
+    
+    return this.ordenacao().direcao === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  onMudancaPagina(request: PageRequest): void {
+    this.pageRequest.set(request);
+    this.carregarUsuarios();
+  }
+
+  aplicarFiltros(): void {
+    // Quando filtros mudam, voltar para primeira página
+    const request = {
+      ...this.pageRequest(),
+      page: 0
+    };
+    
+    this.pageRequest.set(request);
+    this.carregarUsuarios();
   }
 
   aplicarFiltros(): void {
@@ -133,6 +214,15 @@ export class UsuariosComponent implements OnInit {
     }
 
     this.usuariosFiltrados.set(usuariosFiltrados);
+  }
+
+  getColunasKeys(): string[] {
+    return this.colunasExibidas.map(coluna => coluna.key);
+  }
+
+  getColunaLabel(key: string): string {
+    const coluna = this.colunasExibidas.find(c => c.key === key);
+    return coluna?.label || key;
   }
 
   abrirModalDetalhesUsuario(usuarioId: string): void {

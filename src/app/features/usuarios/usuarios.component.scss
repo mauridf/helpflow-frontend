@@ -131,3 +131,64 @@
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
+
+// Adicionar estilos para ordenação
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  
+  .sort-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #666;
+    transition: color 0.2s ease;
+  }
+}
+
+th[class*="ordenavel"] {
+  cursor: pointer;
+  user-select: none;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+    
+    .sort-icon {
+      color: #333;
+    }
+  }
+  
+  &.mat-sort-header-sorted {
+    .sort-icon {
+      color: #3f51b5;
+    }
+  }
+}
+
+// Ajustes para tabela com ordenação
+.mat-table {
+  th.mat-header-cell {
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+// Ajustes de responsividade
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 2px;
+    
+    .sort-icon {
+      font-size: 14px;
+    }
+  }
+  
+  // Esconder colunas menos importantes em mobile
+  .created-at-column {
+    display: none;
+  }
+}
