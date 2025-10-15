@@ -1,0 +1,71 @@
+<div class="filtros-container">
+  <div class="filtros-header">
+    <h3>Filtros</h3>
+    
+    <div class="filtros-info" *ngIf="getFiltrosAtivos() > 0">
+      <span class="filtros-ativos">{{ getFiltrosAtivos() }} filtro(s) ativo(s)</span>
+      <button mat-button (click)="limparFiltros()" class="limpar-filtros">
+        <mat-icon>clear</mat-icon>
+        Limpar
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="filtrosForm" class="filtros-form">
+    <div class="filtros-grid">
+      
+      <!-- Busca -->
+      <mat-form-field appearance="outline" class="filtro-field">
+        <mat-label>Buscar</mat-label>
+        <input matInput formControlName="busca" placeholder="Nome ou e-mail">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Perfil -->
+      <mat-form-field appearance="outline" class="filtro-field">
+        <mat-label>Perfil</mat-label>
+        <mat-select formControlName="perfilId">
+          <mat-option value="">Todos os perfis</mat-option>
+          <mat-option *ngFor="let perfil of perfis()" [value]="perfil.id">
+            {{ perfil.nome }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Status -->
+      <mat-form-field appearance="outline" class="filtro-field">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let opcao of opcoesStatus" [value]="opcao.valor">
+            {{ opcao.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+    </div>
+  </form>
+
+  <!-- Chips dos filtros ativos -->
+  <div class="filtros-chips" *ngIf="getFiltrosAtivos() > 0">
+    <mat-chip 
+      *ngIf="filtrosForm.value.busca"
+      (removed)="removerFiltro('busca')">
+      Busca: "{{ filtrosForm.value.busca }}"
+      <mat-icon matChipRemove>cancel</mat-icon>
+    </mat-chip>
+
+    <mat-chip 
+      *ngIf="filtrosForm.value.perfilId"
+      (removed)="removerFiltro('perfilId')">
+      Perfil: {{ getLabelPerfil(filtrosForm.value.perfilId) }}
+      <mat-icon matChipRemove>cancel</mat-icon>
+    </mat-chip>
+
+    <mat-chip 
+      *ngIf="filtrosForm.value.status"
+      (removed)="removerFiltro('status')">
+      Status: {{ getLabelStatus(filtrosForm.value.status) }}
+      <mat-icon matChipRemove>cancel</mat-icon>
+    </mat-chip>
+  </div>
+</div>

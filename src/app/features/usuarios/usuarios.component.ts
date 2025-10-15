@@ -18,6 +18,7 @@ import { Usuario } from '../../core/models/usuario.model';
 import { UsuarioFormModalComponent, UsuarioFormModalData } from './usuario-form-modal.component';
 import { UsuarioDetalhesModalComponent } from './usuario-detalhes-modal.component';
 import { ConfirmacaoModalComponent, ConfirmacaoModalData } from '../../shared/confirmacao-modal/confirmacao-modal.component';
+import { UsuariosFiltrosComponent, FiltrosUsuarios } from './usuarios-filtros.component';
 
 @Component({
   selector: 'app-usuarios',
@@ -31,7 +32,8 @@ import { ConfirmacaoModalComponent, ConfirmacaoModalData } from '../../shared/co
     MatProgressSpinnerModule,
     MatMenuModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    UsuariosFiltrosComponent
   ],
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.scss']
@@ -44,6 +46,14 @@ export class UsuariosComponent implements OnInit {
   alterandoStatus = signal<string | null>(null);
 
   colunasExibidas = ['nome', 'email', 'perfilNome', 'ativo', 'createdAt', 'acoes'];
+
+  // Adicionar signals
+  usuariosFiltrados = signal<Usuario[]>([]);
+  filtros = signal<FiltrosUsuarios>({
+    busca: '',
+    perfilId: '',
+    status: ''
+  });
 
   constructor(
     public authService: AuthService,
@@ -63,6 +73,7 @@ export class UsuariosComponent implements OnInit {
       this.usuariosService.listarTodos().subscribe({
         next: (usuarios) => {
           this.usuarios.set(usuarios);
+          this.aplicarFiltros();
           this.carregando.set(false);
         },
         error: (error) => {
@@ -75,6 +86,7 @@ export class UsuariosComponent implements OnInit {
       this.usuariosService.listarClientes().subscribe({
         next: (clientes) => {
           this.usuarios.set(clientes);
+          this.aplicarFiltros();
           this.carregando.set(false);
         },
         error: (error) => {
@@ -84,6 +96,43 @@ export class UsuariosComponent implements OnInit {
         }
       });
     }
+  }
+
+  onFiltrosAlterados(filtros: FiltrosUsuarios): void {
+    this.filtros.set(filtros);
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros(): void {
+    const filtros = this.filtros();
+    let usuariosFiltrados = [...this.usuarios()];
+
+    // Aplicar filtro de busca
+    if (filtros.busca) {
+      const termoBusca = filtros.busca.toLowerCase();
+      usuariosFiltrados = usuariosFiltrados.filter(usuario =>
+        usuario.nome.toLowerCase().includes(termoBusca) ||
+        usuario.email.toLowerCase().includes(termoBusca)
+      );
+    }
+
+    // Aplicar filtro de perfil
+    if (filtros.perfilId) {
+      usuariosFiltrados = usuariosFiltrados.filter(usuario =>
+        usuario.perfilId === filtros.perfilId
+      );
+    }
+
+    // Aplicar filtro de status
+    if (filtros.status) {
+      if (filtros.status === 'ativo') {
+        usuariosFiltrados = usuariosFiltrados.filter(usuario => usuario.ativo);
+      } else if (filtros.status === 'inativo') {
+        usuariosFiltrados = usuariosFiltrados.filter(usuario => !usuario.ativo);
+      }
+    }
+
+    this.usuariosFiltrados.set(usuariosFiltrados);
   }
 
   abrirModalDetalhesUsuario(usuarioId: string): void {

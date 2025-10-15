@@ -1,0 +1,63 @@
+<div class="avatar-upload-container">
+  <div 
+    class="avatar-container" 
+    [style]="getContainerStyles()"
+    [class.com-avatar]="temAvatar()"
+    [class.sem-avatar]="!temAvatar()"
+    [class.carregando]="carregando()">
+    
+    <!-- Avatar Image -->
+    <div *ngIf="temAvatar()" class="avatar-image" [style]="getAvatarStyles()">
+      <img [src]="getAvatarUrl()" [alt]="nomeUsuario" class="avatar-img">
+      
+      <!-- Overlay com ações -->
+      <div class="avatar-overlay">
+        <button mat-icon-button (click)="selecionarArquivo()" class="action-button" [disabled]="carregando()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="removerAvatar()" class="action-button" [disabled]="carregando()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Placeholder com iniciais -->
+    <div *ngIf="!temAvatar()" class="avatar-placeholder" [style]="getAvatarStyles()">
+      <span class="avatar-iniciais">{{ getIniciais() }}</span>
+      
+      <!-- Botão de adicionar -->
+      <button mat-icon-button (click)="selecionarArquivo()" class="add-button" [disabled]="carregando()">
+        <mat-icon>add_a_photo</mat-icon>
+      </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <mat-progress-bar 
+      *ngIf="carregando()"
+      mode="determinate" 
+      [value]="progressoUpload()"
+      class="upload-progress">
+    </mat-progress-bar>
+  </div>
+
+  <!-- Ações -->
+  <div class="avatar-actions" *ngIf="!carregando()">
+    <button mat-button (click)="selecionarArquivo()" class="action-link">
+      <mat-icon>photo_camera</mat-icon>
+      Alterar Avatar
+    </button>
+    
+    <button *ngIf="temAvatar()" mat-button (click)="removerAvatar()" class="action-link remove-link">
+      <mat-icon>delete</mat-icon>
+      Remover
+    </button>
+  </div>
+
+  <!-- Input de arquivo oculto -->
+  <input 
+    #fileInput
+    type="file" 
+    accept="image/jpeg,image/png,image/gif,image/webp"
+    (change)="onFileSelected($event)"
+    class="file-input">
+</div>

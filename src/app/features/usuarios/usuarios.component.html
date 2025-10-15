@@ -11,6 +11,10 @@
     </mat-card-header>
 
     <mat-card-content>
+    <!-- Filtros -->
+    <app-usuarios-filtros
+      (filtrosAlterados)="onFiltrosAlterados($event)">
+    </app-usuarios-filtros>
       <!-- Ações -->
       <div class="actions-bar">
         <button 
@@ -36,6 +40,13 @@
           <mat-icon>refresh</mat-icon>
           Atualizar
         </button>
+
+        <!-- Contador de resultados -->
+        <div class="resultados-info" *ngIf="!carregando()">
+          <span class="resultados-texto">
+            {{ usuariosFiltrados().length }} de {{ usuarios().length }} usuário(s)
+          </span>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -143,11 +154,15 @@
         </table>
 
         <!-- Empty State -->
-        <div *ngIf="usuarios().length === 0" class="empty-state">
-          <mat-icon>people_outline</mat-icon>
+        <div *ngIf="usuariosFiltrados().length === 0 && !carregando()" class="empty-state">
+          <mat-icon>search_off</mat-icon>
           <h3>Nenhum usuário encontrado</h3>
-          <p *ngIf="authService.isGestor()">Não há usuários cadastrados no sistema.</p>
-          <p *ngIf="authService.isAtendente()">Não há clientes cadastrados no sistema.</p>
+          <p *ngIf="filtros().busca || filtros().perfilId || filtros().status">
+            Tente ajustar os filtros para ver mais resultados.
+          </p>
+          <p *ngIf="!filtros().busca && !filtros().perfilId && !filtros().status">
+            {{ authService.isGestor() ? 'Não há usuários cadastrados no sistema.' : 'Não há clientes cadastrados no sistema.' }}
+          </p>
         </div>
       </div>
     </mat-card-content>

@@ -97,12 +97,14 @@
       </mat-form-field>
 
       <!-- Avatar -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Avatar URL</mat-label>
-        <input matInput formControlName="avatar" placeholder="https://exemplo.com/avatar.jpg">
-        <mat-icon matSuffix>image</mat-icon>
-        <mat-hint>URL opcional para foto de perfil</mat-hint>
-      </mat-form-field>
+      <div class="avatar-upload-section">
+        <app-avatar-upload
+          [avatarUrl]="usuarioForm.value.avatar || ''"
+          [nomeUsuario]="usuarioForm.value.nome || 'Usuário'"
+          [tamanho]="100"
+          (avatarAlterado)="onAvatarAlterado($event)">
+        </app-avatar-upload>
+      </div>
 
     </form>
   </div>

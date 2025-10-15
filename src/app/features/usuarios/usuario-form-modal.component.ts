@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { UsuariosService } from '../../core/services/usuarios.service';
 import { SetupService, Perfil } from '../../core/services/setup.service';
 import { Usuario, CreateUsuarioRequest, UpdateUsuarioRequest } from '../../core/models/usuario.model';
+import { AvatarUploadComponent } from '../../shared/avatar-upload/avatar-upload.component';
 
 export interface UsuarioFormModalData {
   usuario?: Usuario; // Para edição
@@ -31,7 +32,8 @@ export interface UsuarioFormModalData {
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    AvatarUploadComponent
   ],
   templateUrl: './usuario-form-modal.component.html',
   styleUrls: ['./usuario-form-modal.component.scss']
@@ -202,6 +204,11 @@ export class UsuarioFormModalComponent implements OnInit {
 
   fechar(): void {
     this.dialogRef.close();
+  }
+
+  onAvatarAlterado(url: string): void {
+    this.usuarioForm.patchValue({ avatar: url });
+    this.usuarioForm.get('avatar')?.markAsDirty();
   }
 
   // Getters para os controles do formulário

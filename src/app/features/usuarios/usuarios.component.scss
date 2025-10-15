@@ -114,3 +114,20 @@
     color: #f44336 !important;
   }
 }
+
+.resultados-info {
+  margin-left: auto;
+  
+  .resultados-texto {
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
